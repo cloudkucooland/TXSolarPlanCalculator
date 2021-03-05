@@ -67,7 +67,7 @@ func simulation(p plan, data *map[int]*map[int]data) {
 			tdu := p.TDUKwh * monthdata.Import
 
 			limitedexport := monthdata.Export
-			// Green Mtn, only buyback up to 25kwh over import
+			// if a plan has a net export ceiling
 			if p.MaxKwhNet != -1 && (monthdata.Export-monthdata.Import) > float64(p.MaxKwhNet) {
 				limitedexport = float64(p.MaxKwhNet)
 			}
