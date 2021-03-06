@@ -71,10 +71,10 @@ func simulation(p plan, data *map[int]*map[int]data) {
 			if p.MaxKwhNet != -1 && (monthdata.Export-monthdata.Import) > float64(p.MaxKwhNet) {
 				limitedexport = float64(p.MaxKwhNet)
 			}
-			// TXU: no net positive export
-			if p.MaxKwhNet == 0 && monthdata.Export > monthdata.Import {
+			// TXU: no net positive export -- no, only if the past year was net total
+			/* if p.MaxKwhNet == 0 && monthdata.Export > monthdata.Import {
 				limitedexport = monthdata.Import
-			}
+			} */
 			exp := limitedexport * p.ExportKwh
 			net := exp - base - imp - tdu
 			fmt.Printf("%d/%d\t$%4.2f\t$%4.2f\t$%4.2f\t$%4.2f\t$%4.2f\t$%4.2f\n", year, month, p.Base/100, p.TDUBase/100, imp/100, tdu/100, exp/100, net/100)

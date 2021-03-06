@@ -65,7 +65,7 @@
         "ImportKwh": 14.9,
         "TDUBase": 0.0,
         "TDUKwh": 0.0,
-        "MaxKwhNet": 0,
+        "MaxKwhNet": -1,
         "Rollover": false,
         "Cashout": false 
     }
