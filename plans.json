@@ -68,5 +68,15 @@
         "MaxKwhNet": -1,
         "Rollover": false,
         "Cashout": false 
+    },
+    {   "Name": "TXU Renewal Buyback (0)",
+        "Base": 995.00,
+        "ExportKwh": 8.9,
+        "ImportKwh": 13.9,
+        "TDUBase": 0.0,
+        "TDUKwh": 0.0,
+        "MaxKwhNet": -1,
+        "Rollover": false,
+        "Cashout": false
     }
 ]
