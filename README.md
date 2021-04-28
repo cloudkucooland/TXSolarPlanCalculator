@@ -13,6 +13,7 @@ Please, check my math and logic. Do not trust that I did things correctly. This 
 ** "Submit Update" button
 ** "Export My Report" button
 * update the plans.json file with new data from https://www.texaspowerguide.com/solar-buyback-plans-texas/
+* edit the interval.csv file to fill in any missing data (search for ,, and put in 0 or the approprite value (I have 6 null entries in my output files...)
 * ``TXSolarPlanCalculator interval.csv``
 
 # Example output
