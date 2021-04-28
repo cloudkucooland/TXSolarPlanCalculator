@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -59,9 +60,27 @@ func main() {
 }
 
 func simulation(p plan, data *map[int]*map[int]data) {
+	sortYears := make([]int, 1)
+	for year := range *data {
+		sortYears = append(sortYears, year)
+	}
+	sort.Slice(sortYears, func(i, j int) bool {
+		return sortYears[i] < sortYears[j]
+	})
+
 	fmt.Printf("month\tbase\tTDUbase\timport\tTDU\texport\tnet\n")
-	for year, yeardata := range *data {
-		for month, monthdata := range *yeardata {
+	for _, year := range sortYears {
+		d := *data
+		y, ok := d[year]
+		if !ok {
+			continue
+		}
+		yeardata := *y
+		for month := 0; month <= 12; month++ {
+			monthdata, ok := yeardata[month]
+			if !ok {
+				continue
+			}
 			base := p.Base + p.TDUBase
 			imp := p.ImportKwh * monthdata.Import
 			tdu := p.TDUKwh * monthdata.Import
@@ -133,6 +152,8 @@ func loadData(file string) (*map[time.Time]data, error) {
 }
 
 func dataToMonthly(d *map[time.Time]data) *map[int]*map[int]data {
+	sortYears := make([]int, 1)
+
 	years := make(map[int]*map[int]data)
 	for k, v := range *d {
 		year := k.Year()
@@ -141,6 +162,7 @@ func dataToMonthly(d *map[time.Time]data) *map[int]*map[int]data {
 			tmp := make(map[int]data)
 			y = &tmp
 			years[year] = y
+			sortYears = append(sortYears, year)
 		}
 
 		month := int(k.Month())
@@ -154,9 +176,22 @@ func dataToMonthly(d *map[time.Time]data) *map[int]*map[int]data {
 		tt[month] = m
 	}
 
-	for ky, vy := range years {
-		for km, vm := range *vy {
-			fmt.Printf("%d/%d\tImport: %4.2fkwh\tExport: %4.2fkwh\tNet: %4.2fkwh\n", ky, km, vm.Import, vm.Export, vm.Export-vm.Import)
+	sort.Slice(sortYears, func(i, j int) bool {
+		return sortYears[i] < sortYears[j]
+	})
+
+	for _, year := range sortYears {
+		yearpointer, ok := years[year]
+		if !ok {
+			continue
+		}
+		yeardata := *yearpointer
+		for month := 0; month <= 12; month++ {
+			monthdata, ok := yeardata[month]
+			if !ok {
+				continue
+			}
+			fmt.Printf("%d/%d\tImport: %4.2fkwh\tExport: %4.2fkwh\tNet: %4.2fkwh\n", year, month, monthdata.Import, monthdata.Export, monthdata.Export-monthdata.Import)
 		}
 	}
 	return &years
