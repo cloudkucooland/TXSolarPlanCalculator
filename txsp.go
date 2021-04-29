@@ -53,15 +53,15 @@ func main() {
 	}
 	y := dataToMonthly(data)
 
-	for _, v := range *plans {
+	for _, v := range plans {
 		fmt.Printf("\n%s\n", v.Name)
 		simulation(v, y)
 	}
 }
 
-func simulation(p plan, data *map[int]*map[int]data) {
+func simulation(p plan, data map[int]map[int]data) {
 	sortYears := make([]int, 1)
-	for year := range *data {
+	for year := range data {
 		sortYears = append(sortYears, year)
 	}
 	sort.Slice(sortYears, func(i, j int) bool {
@@ -70,12 +70,10 @@ func simulation(p plan, data *map[int]*map[int]data) {
 
 	fmt.Printf("month\tbase\tTDUbase\timport\tTDU\texport\tnet\n")
 	for _, year := range sortYears {
-		d := *data
-		y, ok := d[year]
+		yeardata, ok := data[year]
 		if !ok {
 			continue
 		}
-		yeardata := *y
 		for month := 0; month <= 12; month++ {
 			monthdata, ok := yeardata[month]
 			if !ok {
@@ -101,7 +99,7 @@ func simulation(p plan, data *map[int]*map[int]data) {
 	}
 }
 
-func loadData(file string) (*map[time.Time]data, error) {
+func loadData(file string) (map[time.Time]data, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return nil, err
@@ -148,32 +146,30 @@ func loadData(file string) (*map[time.Time]data, error) {
 		}
 	}
 
-	return &d, nil
+	return d, nil
 }
 
-func dataToMonthly(d *map[time.Time]data) *map[int]*map[int]data {
+func dataToMonthly(d map[time.Time]data) map[int]map[int]data {
 	sortYears := make([]int, 1)
 
-	years := make(map[int]*map[int]data)
-	for k, v := range *d {
+	years := make(map[int]map[int]data)
+	for k, v := range d {
 		year := k.Year()
 		y, ok := years[year]
 		if !ok {
-			tmp := make(map[int]data)
-			y = &tmp
+			y = make(map[int]data)
 			years[year] = y
 			sortYears = append(sortYears, year)
 		}
 
 		month := int(k.Month())
-		tt := *y
-		m, ok := tt[month]
+		m, ok := y[month]
 		if !ok {
 			m = data{}
 		}
 		m.Import += v.Import
 		m.Export += v.Export
-		tt[month] = m
+		y[month] = m
 	}
 
 	sort.Slice(sortYears, func(i, j int) bool {
@@ -181,11 +177,10 @@ func dataToMonthly(d *map[time.Time]data) *map[int]*map[int]data {
 	})
 
 	for _, year := range sortYears {
-		yearpointer, ok := years[year]
+		yeardata, ok := years[year]
 		if !ok {
 			continue
 		}
-		yeardata := *yearpointer
 		for month := 0; month <= 12; month++ {
 			monthdata, ok := yeardata[month]
 			if !ok {
@@ -194,10 +189,10 @@ func dataToMonthly(d *map[time.Time]data) *map[int]*map[int]data {
 			fmt.Printf("%d/%d\tImport: %4.2fkwh\tExport: %4.2fkwh\tNet: %4.2fkwh\n", year, month, monthdata.Import, monthdata.Export, monthdata.Export-monthdata.Import)
 		}
 	}
-	return &years
+	return years
 }
 
-func loadPlans(file string) (*[]plan, error) {
+func loadPlans(file string) ([]plan, error) {
 	f, err := os.ReadFile(file)
 	if err != nil {
 		panic(err)
@@ -209,5 +204,5 @@ func loadPlans(file string) (*[]plan, error) {
 		panic(err)
 	}
 
-	return &plans, nil
+	return plans, nil
 }
